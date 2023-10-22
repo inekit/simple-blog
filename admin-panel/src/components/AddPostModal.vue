@@ -22,7 +22,8 @@
         <div class="border p-2 mt-3 preview-container">
           <template v-if="preview_list?.length">
             <div v-for="item, index in preview_list" :key="index">
-              <img :src="item" class="img-fluid" />
+              <img :src="item.src" class="img-fluid" />
+              <input v-model="preview_list[index].alt" />
               <button @click.prevent="dropImage(index)">Х</button>
             </div>
           </template>
@@ -71,7 +72,9 @@ export default {
   },
   updated() {
     this.textMd2 = this.formData.text
-    this.preview_list = this.formData.image_list?.filter(el => el)?.map(preview_name => `${this.$store.state.serverAddr}/pics/${preview_name}`)
+    this.preview_list = this.formData.image_list?.filter(el => el.file_name)?.map(({ file_name, alt }) => {
+      return { file_name, src: `${this.$store.state.imagesServer}/img/post-${this.formData.id}/${file_name}`, alt }
+    })
 
   },
   async mounted() {
@@ -92,7 +95,7 @@ export default {
         while (count--) {
           var reader = new FileReader();
           reader.onload = (e) => {
-            this.preview_list.push(e.target.result);
+            this.preview_list.push({ src: e.target.result, alt: "" });
           }
           this.formData.image_list.push(input.files[index]);
           reader.readAsDataURL(input.files[index]);
@@ -121,7 +124,11 @@ export default {
       formData.append('text', this.textMd2)
 
       this.formData.image_list?.forEach(image => {
-        formData.append('images[]', image);
+        formData.append('images[]', image?.file_name ?? image ?? null);
+      });
+
+      this.preview_list?.forEach(imageObj => {
+        formData.append('alts[]', JSON.stringify(imageObj?.map(el => Object.assign(el, { src: null }))));
       });
 
       isEdit && formData.append('id', this.formData.id)
