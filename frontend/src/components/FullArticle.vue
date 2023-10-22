@@ -14,6 +14,11 @@
       </div>
     </div>
     <span v-if="parsedText" v-html="parsedText" class="article-text mt-4" v-highlight></span>
+    <div class="images-container">
+      <div v-for="image, i in imageList" :key="i">
+        <img :src="image.src" :alt="image.alt" />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -29,27 +34,52 @@ export default {
   data: () => {
     return {
       parsedText: '',
+      imageList: [],
     }
   },
   watch: {
-    'article.text': function (newVal, oldVal) {
-      this.parsedText = DOMPurify.sanitize(marked.parse(this.article.text))?.replaceAll(
-        '<pre>',
-        "<pre class='language-csharp'>"
-      );
-    },
   },
   mounted() {
-    if (this.$route.name === "about")
-      this.parsedText = DOMPurify.sanitize(marked.parse(this.article.text ?? " "));
+    this.parsedText = DOMPurify.sanitize(marked.parse(this.article.text ?? " "));
+
+    this.imageList = this.article.image_list
+      ?.filter((el) => el.file_name)
+      ?.map(({ file_name, alt }) => {
+        return { src: `${this.$store.state.imagesServer}/img/post-${this.article.id}/${file_name}`, alt };
+      })
+
   },
   updated() {
-    if (this.$route.name === "about")
-      this.parsedText = DOMPurify.sanitize(marked.parse(this.article.text ?? " "));
+    this.parsedText = DOMPurify.sanitize(marked.parse(this.article.text ?? " "));
+
+    this.imageList = this.article.image_list
+      ?.filter((el) => el.file_name)
+      ?.map(({ file_name, alt }) => {
+        return { src: `${this.$store.state.imagesServer}/img/post-${this.article.id}/${file_name}`, alt };
+      })
   },
   methods: {
     dateFormatter,
   },
 }
 </script>
+
+<style lang="scss">
+.images-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+
+  &>div {
+    flex: 1;
+    max-width: 200px;
+    position: relative;
+
+    &>img {
+      width: 100%;
+      height: auto;
+    }
+  }
+}
+</style>
   

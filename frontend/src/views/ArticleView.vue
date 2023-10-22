@@ -36,8 +36,6 @@ export default {
           },
         })
         .then((res) => {
-          const { title, text, preview_name, comments, publication_date } = res.data;
-
           this.article = res.data;
         })
         .catch((error) => {

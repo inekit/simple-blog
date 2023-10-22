@@ -6,6 +6,7 @@ export default createStore({
     showReg: false,
     searchingArchive: '',
     publicPath: 'https://gmi.pics',
+    imagesServer: 'http://pics1.gmi.pics',
     nightMode: false,
     isMobile: false,
     searchRequestData: {

@@ -15,6 +15,7 @@ async function addOne(req, res, next) {
     .add(
       Object.assign(req.body, {
         images: req.body?.['images[]'],
+        alts: req.body['alts[]'],
         previewsBinary: req.files?.['images[]'],
       })
     )
@@ -27,6 +28,7 @@ async function editOne(req, res, next) {
     .edit(
       Object.assign(req.body, {
         images: req.body?.['images[]'],
+        alts: req.body['alts[]'],
         previewsBinary: req.files?.['images[]'],
       })
     )
@@ -35,8 +37,8 @@ async function editOne(req, res, next) {
 }
 
 function deleteOne(req, res, next) {
-  servicePreset
-    .delete(req.body.id)
+  postsService
+    .delete(req.body)
     .then((data) => res.send(data))
     .catch((error) => next(error));
 }

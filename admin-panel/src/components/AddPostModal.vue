@@ -128,7 +128,7 @@ export default {
       });
 
       this.preview_list?.forEach(imageObj => {
-        formData.append('alts[]', JSON.stringify(imageObj?.map(el => Object.assign(el, { src: null }))));
+        formData.append('alts[]', JSON.stringify(Object.assign(imageObj, { src: null })));
       });
 
       isEdit && formData.append('id', this.formData.id)

@@ -19,6 +19,11 @@ module.exports = new EntitySchema({
       nullable: false,
       unique: true,
     },
+    alt: {
+      type: 'varchar',
+      length: 255,
+      nullable: true,
+    },
     file_name: {
       type: 'varchar',
       length: 255,
@@ -32,7 +37,7 @@ module.exports = new EntitySchema({
   },
   relations: {
     post: {
-      target: 'Item',
+      target: 'Post',
       type: 'many-to-one',
       joinColumn: true,
       cascade: true,
