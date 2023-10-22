@@ -17,6 +17,16 @@
           label="Текст статьи" style="margin-bottom: 1rem" placeholder="Напишите что-нибудь" rows="20" id="inputText"
           aria-describedby="inputGroupPrepend" required />
 
+        <CFormInput type="file" accept="image/*" multiple="multiple" ref="file" @change="previewMultiImage" class="mb-3"
+          label="Превью" placeholder="Изображения" />
+        <div class="border p-2 mt-3 preview-container">
+          <template v-if="preview_list?.length">
+            <div v-for="item, index in preview_list" :key="index">
+              <img :src="item" class="img-fluid" />
+              <button @click.prevent="dropImage(index)">Х</button>
+            </div>
+          </template>
+        </div>
       </CModalBody>
       <CModalFooter>
         <CButton color="secondary" @click="closeModal"> Отменить </CButton>
@@ -47,8 +57,7 @@ export default {
       title: '',
       text: '',
       description: '',
-      preview_name: '',
-      tags_array: new Set(),
+      image_list: [],
     },
   },
   data() {
@@ -56,13 +65,14 @@ export default {
       textMd2: '',
       textEditMode: 'md2',
       formValid: false,
-      preview: ""
+      preview_list: [],
+
     }
   },
   updated() {
     this.textMd2 = this.formData.text
+    this.preview_list = this.formData.image_list?.filter(el => el)?.map(preview_name => `${this.$store.state.serverAddr}/pics/${preview_name}`)
 
-    document.getElementsByClassName('ql-toolbar')?.[0].classList.add('hidden')
   },
   async mounted() {
   },
@@ -70,14 +80,34 @@ export default {
     addNewPost() {
       eventBus.$emit('addNewPost')
     },
-    changeP(e) {
-      console.log(e.target.value)
-      this.formData.project_name = e.target.value
+    previewMultiImage(event) {
+      var input = event.target;
+      var count = input.files.length;
+      var index = 0;
+      this.formData.preview = input.files[0]
+      if (!this.preview_list) this.preview_list = []
+      if (!this.formData.image_list) this.formData.image_list = []
+
+      if (input.files) {
+        while (count--) {
+          var reader = new FileReader();
+          reader.onload = (e) => {
+            this.preview_list.push(e.target.result);
+          }
+          this.formData.image_list.push(input.files[index]);
+          reader.readAsDataURL(input.files[index]);
+          index++;
+        }
+      }
     },
-    changeT(e) {
-      console.log(e.target.checked)
-      if (e.target.checked) this.formData.tags_array.add(e.target.value)
-      else this.formData.tags_array.delete(e.target.value)
+    reset() {
+      this.formData.image_list = [];
+      this.preview_list = [];
+    },
+    dropImage(index) {
+      this.formData.image_list?.splice(index, 1);
+      this.preview_list?.splice(index, 1);
+
     },
     closeModal() {
       eventBus.$emit('closeModal')
@@ -90,12 +120,15 @@ export default {
       formData.append('title', this.formData.title)
       formData.append('text', this.textMd2)
 
+      this.formData.image_list?.forEach(image => {
+        formData.append('images[]', image);
+      });
+
       isEdit && formData.append('id', this.formData.id)
 
       return formData
     },
     addNewing() {
-      console.log(this.$refs.postTextEditor.getHTML())
       try {
         const formData = this.constractFromData()
 
@@ -146,20 +179,6 @@ export default {
   display: none;
 }
 
-.tags-cloud,
-.projects-list {
-  display: flex;
-  flex-wrap: wrap;
-
-  &>* {
-    margin-right: 20px;
-  }
-
-  &>span {
-    flex: 0 0 100%;
-    margin-bottom: 10px;
-  }
-}
 
 .preview-container {
   display: flex;

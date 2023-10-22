@@ -17,21 +17,24 @@ app.use(
 );
 app.use(cookieParser());
 
-var sessionStore = new MySQLStore({
-  pool: sessionConnection,
-  tableName: 'session',
-  columnNames: {
-    sid: 'session_id',
-    expire: 'expires',
-    sess: 'data',
-    session_id: 'sid',
-    expires: 'expire',
-    data: 'sess',
-  },
+var sessionStore = new MySQLStore(
+  {
+    // pool: sessionConnection,
+    tableName: 'session',
+    columnNames: {
+      sid: 'session_id',
+      expire: 'expires',
+      sess: 'data',
+      session_id: 'sid',
+      expires: 'expire',
+      data: 'sess',
+    },
 
-  //expiration: 10800000,
-  //createDatabaseTable: true,
-});
+    expiration: 10800000,
+    createDatabaseTable: true,
+  },
+  sessionConnection
+);
 
 app.set('trust proxy', 1);
 

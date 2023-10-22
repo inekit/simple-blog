@@ -7,7 +7,7 @@
       </span>
     </p>
     <h3 cMlass="h4 card-title mb-1">{{ postData.title }}</h3>
-    <router-link class="btn btn-primary btn-sm mr-3 post-button" :to="`/archive/${postData.id}`">Читать
+    <router-link class="btn btn-primary btn-sm mr-3 post-button" :to="`/article/${postData.id}`">Читать
       полностью
     </router-link>
   </div>

@@ -1,34 +1,31 @@
 const { AppDataSource } = require('../data-source');
-var pg = require('pg');
-const { connect } = require('http2');
-const { use } = require('passport');
+const mysql = require('mysql2');
 
 const { host, port, username, database, password } = AppDataSource.options;
 //console.log(123, host, port, username, password);
 const params = {
-  username,
+  username: 'blogger',
   user: username,
-  host,
-  database,
-  password,
-  port,
+  host: '127.0.0.1',
+  database: 'blog',
+  password: 'REgfvrwgf3',
+  port: 3306,
   max: 10,
 };
 
 function createConnection() {
-  return new pg.Pool();
+  return new mysql.createPool(params);
 }
 
 function sessionConnection() {
-  let con = new pg.Pool(params);
+  let con = mysql.createConnection(params);
 
   //con.query('select * from session').then((res) => console.log(res));
-
-  con.on('error', function (err) {
+  /* con.on('error', function (err) {
     console.log('cannot connect session', err);
   });
-
-  return con;
+  */
+  return con.promise();
 }
 
 module.exports = { createConnection, sessionConnection };

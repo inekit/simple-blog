@@ -1,5 +1,5 @@
 const express = require('express');
-const passport = require('passport');
+//const passport = require('passport');
 
 const bodyParser = require('body-parser');
 
@@ -15,8 +15,8 @@ app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(passport.initialize());
-app.use(passport.session());
+//app.use(passport.initialize());
+//app.use(passport.session());
 
 app.use('/api', userRouter);
 app.use('/api/admin', adminRouter);
