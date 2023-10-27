@@ -69,6 +69,7 @@ export default {
     })
     eventBus.$on('postEdited', () => {
       this.formVisible = false
+      this.get()
       this.formData = {}
     })
   },

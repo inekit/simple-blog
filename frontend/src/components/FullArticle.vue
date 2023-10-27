@@ -13,7 +13,7 @@
         </div>
       </div>
     </div>
-    <span v-if="parsedText" v-html="parsedText" class="article-text mt-4" v-highlight></span>
+    <span v-if="article.text" v-html="article.text" class="article-text mt-4" v-highlight></span>
     <div class="images-container">
       <div v-for="image, i in imageList" :key="i">
         <img :src="image.src" :alt="image.alt" />
@@ -34,33 +34,25 @@ export default {
   data: () => {
     return {
       parsedText: '',
-      imageList: [],
     }
   },
-  watch: {
+  computed: {
+    imageList() {
+      return this.article.image_list
+        ?.filter((el) => el.file_name)
+        ?.map(({ file_name, alt }) => {
+          return { src: `${this.$store.state.imagesServer}/img/post-${this.article.id}/${file_name}`, alt };
+        })
+    }
   },
   mounted() {
-    this.parsedText = DOMPurify.sanitize(marked.parse(this.article.text ?? " "));
-
-    this.imageList = this.article.image_list
-      ?.filter((el) => el.file_name)
-      ?.map(({ file_name, alt }) => {
-        return { src: `${this.$store.state.imagesServer}/img/post-${this.article.id}/${file_name}`, alt };
-      })
-
   },
   updated() {
-    this.parsedText = DOMPurify.sanitize(marked.parse(this.article.text ?? " "));
-
-    this.imageList = this.article.image_list
-      ?.filter((el) => el.file_name)
-      ?.map(({ file_name, alt }) => {
-        return { src: `${this.$store.state.imagesServer}/img/post-${this.article.id}/${file_name}`, alt };
-      })
   },
   methods: {
     dateFormatter,
   },
+
 }
 </script>
 

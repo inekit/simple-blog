@@ -19,24 +19,22 @@ export default {
     };
   },
   watch: {
-    async $route() {
-      await this.getArticle();
-      window.scrollTo(0, 0);
-    },
   },
-  mounted() {
-    this.getArticle();
+  async beforeMount() {
+    await this.getArticle();
   },
   methods: {
     async getArticle(take, page) {
       await this.$root.myApi
         .get(this.$store.state.publicPath + '/api/posts/', {
           params: {
-            id: this.$route.params.postId,
+            id: this.$route.params.postId?.split('-')?.[0],
           },
         })
         .then((res) => {
           this.article = res.data;
+          document.title = this.article.title;
+
         })
         .catch((error) => {
           eventBus.emit('noresponse', error);
