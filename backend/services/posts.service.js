@@ -4,6 +4,9 @@ const { HttpError, MySqlError, NotFoundError, NoInputDataError } = require('../u
 const ftp = require('basic-ftp');
 const webp = require('webp-converter');
 webp.grant_permission();
+
+const sharp = require('sharp');
+
 const fs = require('fs').promises;
 const ftpParams = {
   host: 'pics1.gmi.pics',
@@ -22,6 +25,46 @@ class UsersService {
   }
 
   async saveReturningImageObj({ image, post_id, client }) {
+    let fNameFullPath;
+    if (typeof image === String) throw new Error('wrong format');
+    let fName = image?.name;
+    if (!fName) throw new Error('wrong format');
+
+    let imageBuffer, previewBuffer;
+
+    try {
+      console.log(image);
+
+      let fNameSplit = fName.split('.');
+      const fileFormat = fNameSplit[fNameSplit.length - 1];
+      fNameFullPath = image.md5 + '.' + fileFormat;
+
+      const mimetype = image.mimetype.split('/')[0];
+
+      previewBuffer = await sharp(image.data).resize(370).jpeg({ mozjpeg: true }).toBuffer();
+
+      if (fileFormat !== 'jpg' && mimetype === 'image') {
+        imageBuffer = await sharp(image.data).jpeg({ mozjpeg: true }).toBuffer();
+      } else if (fileFormat === 'jpg') imageBuffer = image.data;
+    } catch (e) {
+      console.log(e);
+      throw new Error('file error');
+    }
+
+    try {
+      await client.access(ftpParams);
+      await client.ensureDir(`img/post-${post_id}`);
+      await client.uploadFrom(imageBuffer, image.md5 + '.jpg');
+      await client.uploadFrom(previewBuffer, image.md5 + '_preview.jpg');
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+
+    return { file_name: fNameFullPath, server_id: 1 };
+  }
+
+  async saveReturningImageObj2({ image, post_id, client }) {
     let fNameFullPath;
     if (typeof image === String) throw new Error('wrong format');
     let fName = image?.name;
